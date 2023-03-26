@@ -1,3 +1,5 @@
+global using Dotnet_EF_Jumpstart.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
