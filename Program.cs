@@ -1,5 +1,6 @@
 global using Dotnet_EF_Jumpstart.Models;
 global using Dotnet_EF_Jumpstart.Services.CharacterService;
+global using Dotnet_EF_Jumpstart.Dtos.Character;
 
 var builder = WebApplication.CreateBuilder(args);
 
