@@ -23,9 +23,15 @@ namespace Dotnet_EF_Jumpstart.Services.CharacterService
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             var character = _mapper.Map<Character>(newCharacter);
+            character.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == GetuserId());
+
             _context.Characters.Add(character);
             await _context.SaveChangesAsync();
-            serviceResponse.Data = await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
+
+            serviceResponse.Data = await _context.Characters
+                .Where(c => c.User!.Id == GetuserId())
+                .Select(c => _mapper.Map<GetCharacterDto>(c))
+                .ToListAsync();
             return serviceResponse;
         }
 
@@ -37,7 +43,8 @@ namespace Dotnet_EF_Jumpstart.Services.CharacterService
             try
             {
 
-                var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+                var character = await _context.Characters
+                    .FirstOrDefaultAsync(c => c.Id == id && c.User!.Id == GetuserId());
                 if (character is null)
                 {
                     throw new Exception($"Character with Id '{id}' not found.");
@@ -46,7 +53,9 @@ namespace Dotnet_EF_Jumpstart.Services.CharacterService
 
                 await _context.SaveChangesAsync();
 
-                serviceResponse.Data = await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
+                serviceResponse.Data = await _context.Characters
+                    .Where(c => c.User!.Id == GetuserId())
+                    .Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
 
             }
             catch (Exception ex)
@@ -70,7 +79,8 @@ namespace Dotnet_EF_Jumpstart.Services.CharacterService
         public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
         {
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
-            var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+            var dbCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == id && c.User!.Id == GetuserId());
             serviceResponse.Data = _mapper.Map<GetCharacterDto>(dbCharacter);
             return serviceResponse;
         }
@@ -83,7 +93,7 @@ namespace Dotnet_EF_Jumpstart.Services.CharacterService
             {
 
                 var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == updatedCharacter.Id);
-                if (character is null)
+                if (character is null || character.User!.Id != GetuserId())
                 {
                     throw new Exception($"Character with Id '{updatedCharacter.Id}' not found.");
                 }
