@@ -26,5 +26,16 @@ namespace Dotnet_EF_Jumpstart.Controllers
             }
             return Ok(response);
         }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<ServiceResponse<int>>> Login(UserRegisterDto request)
+        {
+            var response = await _authRepo.Login(request.Username, request.Password);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }
