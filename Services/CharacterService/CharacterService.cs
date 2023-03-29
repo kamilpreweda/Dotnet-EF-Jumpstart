@@ -12,12 +12,6 @@ namespace Dotnet_EF_Jumpstart.Services.CharacterService
             _mapper = mapper;
             _context = context;
         }
-
-        private static List<Character> characters = new List<Character>{
-            new Character(),
-            new Character { Id=1, Name = "Sam"}
-        };
-
         public async Task<ServiceResponse<List<GetCharacterDto>>> AddCharacter(AddCharacterDto newCharacter)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
@@ -36,14 +30,16 @@ namespace Dotnet_EF_Jumpstart.Services.CharacterService
             try
             {
 
-                var character = characters.FirstOrDefault(c => c.Id == id);
+                var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
                 if (character is null)
                 {
                     throw new Exception($"Character with Id '{id}' not found.");
                 }
-                characters.Remove(character);
+                _context.Characters.Remove(character);
 
-                serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+                await _context.SaveChangesAsync();
+
+                serviceResponse.Data = await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
 
             }
             catch (Exception ex)
