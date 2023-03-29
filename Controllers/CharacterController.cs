@@ -14,6 +14,7 @@ namespace Dotnet_EF_Jumpstart.Controllers
             _characterService = characterService;
         }
 
+        [AllowAnonymous]
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
         {
